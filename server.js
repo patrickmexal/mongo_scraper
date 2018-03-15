@@ -1,6 +1,8 @@
 // Dependencies
 var express = require("express");
 var mongojs = require("mongojs");
+var logger = require("morgan");
+var mongoose = require("mongoose");
 // Scraping Dependencies
 var cheerio = require("cheerio");
 var request = require("request");
@@ -9,6 +11,8 @@ var app = express();
 // Database configuration
 var databaseUrl = "arizonaSports";
 var collections = ["sportsNews"];
+// Port 
+var PORT = process.env.PORT || 3000;
 
 // First, tell the console what server.js is doing
 console.log("\n******************************************\n" +
