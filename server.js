@@ -20,21 +20,19 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Use express.static to serve the public folder as a static directory
 app.use(express.static("public"));
 
-// By default mongoose uses callbacks for async queries, we're setting it to use promises (.then syntax) instead
+
+// Connect to the Mongo DB
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
+
+
 // Connect to the Mongo DB
 mongoose.Promise = Promise;
-mongoose.connect(
-    "mongodb://localhost/mongoHeadlinesdb", {
-        useMongoClient: true
-    }
-)
-// mongoose.Promise = Promise;
-// mongoose.connect("mongodb://localhost/populatedb", {
-//   useMongoClient: true
-// });
+mongoose.connect(MONGODB_URI, {
+  useMongoClient: true
+});
+
 
 // When the server starts, create and save a new User document to the db
-// The "unique" rule in the User model's schema will prevent duplicate users from being added to the server
 db.User.create({ name: "Ernest Hemingway" })
   .then(function(dbUser) {
     console.log(dbUser);
@@ -73,14 +71,12 @@ app.get("/user", function(req, res) {
     });
 });
 
-// Route for saving a new Note to the db and associating it with a User
+
 app.post("/submit", function(req, res) {
   // Create a new Note in the db
   db.Note.create(req.body)
     .then(function(dbNote) {
-      // If a Note was created successfully, find one User (there's only one) and push the new Note's _id to the User's `notes` array
-      // { new: true } tells the query that we want it to return the updated User -- it returns the original by default
-      // Since our mongoose query returns a promise, we can chain another `.then` which receives the result of the query
+     
       return db.User.findOneAndUpdate({}, { $push: { notes: dbNote._id } }, { new: true });
     })
     .then(function(dbUser) {
